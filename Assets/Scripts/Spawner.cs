@@ -1,3 +1,4 @@
+using System.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
 
@@ -10,8 +11,8 @@ public class Spawner: MonoBehaviour
 
     private Bounds _bounds;
 
-    private float _spawnRepeatTime = 0.1f;
-    private float _spawnStartTime = 0.0f;
+    private Coroutine _coroutine;
+    private float _spawnRepeatTime = 0.3f;
 
     private void Awake()
     {
@@ -28,10 +29,21 @@ public class Spawner: MonoBehaviour
 
     private void Start()
     {
-        InvokeRepeating(nameof(Spawn), _spawnStartTime, _spawnRepeatTime);
+        _coroutine = StartCoroutine(Spawn());
     }
 
-    public void Spawn()
+    private IEnumerator Spawn()
+    {
+        var wait = new WaitForSeconds(_spawnRepeatTime);
+
+        while (enabled)
+        {
+            GetCube();
+            yield return wait;
+        }
+    }
+
+    private void GetCube()
     {
         _poolObjects.Get();
     }

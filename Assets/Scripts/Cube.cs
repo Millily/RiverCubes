@@ -10,8 +10,9 @@ public class Cube : MonoBehaviour
     private Color _startColor;
     private Color _colorAfterCollision = Color.blue;
 
-    private int _lifeTime;
     private Coroutine _coroutine;
+    private int _lifeTime;
+    private bool _platformCollision = false;
 
     public Rigidbody Rigidbody { get; private set; }
 
@@ -33,17 +34,17 @@ public class Cube : MonoBehaviour
 
     private void OnCollisionEnter(Collision collision)
     {
-        float delay = 1f;
-
-        if (collision.gameObject.TryGetComponent<Cube>(out _) == false)
+        if (collision.gameObject.TryGetComponent<Platform>(out _) && _platformCollision == false)
         {
+            _platformCollision = true;
             _changerColor.ChangeColor(_renderer, _colorAfterCollision);
-            _coroutine = StartCoroutine(Countdown(delay, _lifeTime));
+            _coroutine = StartCoroutine(CountLifeTime(_lifeTime));
         }
     }
 
-    private IEnumerator Countdown(float delay, int end)
+    private IEnumerator CountLifeTime(int end)
     {
+        float delay = 1f;
         var wait = new WaitForSeconds(delay);
 
         for (int i = 0; i < end; i++)
@@ -53,5 +54,6 @@ public class Cube : MonoBehaviour
 
         LifeEnded?.Invoke(this);
         _changerColor?.ChangeColor(_renderer, _startColor);
+        _platformCollision = false;
     }
 }
